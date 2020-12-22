@@ -21,12 +21,14 @@
 </template>
 
 <script>
+  import {login} from '../api/Api.js'
+
   export default {
     data() {
       return {
         loginForm: {
-          username: '',
-          password: ''
+          username: 'admin',
+          password: '123456'
         },
         loginVerify: {
           username: [{
@@ -63,8 +65,12 @@
       login() {
         this.$refs.loginFormRef.validate(async isSuccess => {
           if(isSuccess){
-            const data = await this.$http.post('login',this.loginForm)
+            const data = await login(this.loginForm)
             this.$message.success(data.meta.msg)
+            //登录成功后token保存到sessionStorage中
+            window.sessionStorage.setItem("token",data.data.token)
+            //跳转到后台首页
+            this.$router.push('/home')
           }
         })
       }

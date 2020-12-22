@@ -7,6 +7,17 @@ axios.defaults.timeout = 5000
 // axios.defaults.headers['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
 
 //拦截器
+axios.interceptors.request.use(
+  config => {
+    config.headers.Authorization = window.sessionStorage.getItem('token')
+    return config
+  },
+
+  error => {
+    Message.error('无法连接服务器')
+    throw '无法连接服务器'
+  }
+)
 axios.interceptors.response.use(
   response => {
     const data = response.data
@@ -20,14 +31,14 @@ axios.interceptors.response.use(
   },
 
   error => {
-    Promise.reject('网络异常');
+    Message.error('无法连接服务器')
+    throw '无法连接服务器'
   }
 )
 
 const errorHandle = (status, msg) => {
   // Promise.reject(msg);
   Message.error(msg)
-  throw msg
   // 状态码判断
   switch (status) {
     case 400: //请求的地址不存在或者包含不支持的参数

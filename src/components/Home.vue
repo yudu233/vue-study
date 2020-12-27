@@ -10,16 +10,16 @@
     <el-container>
       <!-- 侧边栏 -->
       <el-aside width="200px">
-        <el-menu background-color="#333744" text-color="#fff" active-text-color="#ffd04b">
-          <el-submenu index="1">
+        <el-menu background-color="#333744" text-color="#fff" active-text-color="#ffd04b" router>
+          <el-submenu :index="'/' +item.path" v-for="item in menuData" :key="item.id">
             <template slot="title">
               <i class="el-icon-location"></i>
-              <span>导航一</span>
+              <span>{{item.authName}}</span>
             </template>
-            <el-menu-item index="1-4-1">
+            <el-menu-item :index="subItem.path + ''" v-for="subItem in item.children" :key="subItem.id">
               <template slot="title">
                 <i class="el-icon-location"></i>
-                <span>导航一</span>
+                <span>{{subItem.authName}}</span>
               </template>
             </el-menu-item>
           </el-submenu>
@@ -27,7 +27,9 @@
         </el-menu>
       </el-aside>
       <!-- 右侧内容 -->
-      <el-main>Main</el-main>
+      <el-main>
+        <router-view></router-view>
+      </el-main>
     </el-container>
   </el-container>
 </template>
@@ -41,7 +43,7 @@
     data() {
       return {
         logo: require('@/assets/logo.png'),
-        menuData:[]
+        menuData: []
       }
     },
     methods: {
@@ -52,6 +54,7 @@
     },
     async created() {
       const data = await getMenuData()
+      this.menuData = data.data
     }
   }
 </script>

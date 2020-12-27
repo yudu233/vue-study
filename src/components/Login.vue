@@ -70,7 +70,7 @@
             //登录成功后token保存到sessionStorage中
             window.sessionStorage.setItem("token",data.data.token)
             //跳转到后台首页
-            this.$router.push('/home')
+            this.$router.push('/admin')
           }
         })
       }

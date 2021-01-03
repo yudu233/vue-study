@@ -17,4 +17,14 @@ export function getUsers(queryInfo) {
   })
 }
 
+/* 更改用户状态 */
+export function changeUserState(id,state){
+  return http.put(`users/${id}/state/${state}`)
+}
+
+//* 根据ID查询用户 */
+export function searchUser(userId){
+  return http.get(`users/${userId}`)
+  }
+
 export default http

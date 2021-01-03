@@ -12,12 +12,12 @@
 
       <el-row :gutter="20">
         <el-col :span="10">
-          <el-input placeholder="请输入内容">
-            <el-button slot="append" icon="el-icon-search"></el-button>
+          <el-input placeholder="请输入内容" v-model="queryInfo.query" clearable @clear="getUsers">
+            <el-button slot="append" icon="el-icon-search" @click="getUsers()"></el-button>
           </el-input>
         </el-col>
         <el-col :span="4">
-          <el-button type="primary">添加用户</el-button>
+          <el-button type="primary" @click="addUserDialogVisible = true">添加用户</el-button>
         </el-col>
       </el-row>
 
@@ -28,10 +28,10 @@
         <el-table-column label="邮箱" prop="email"></el-table-column>
         <el-table-column label="电话" prop="mobile"></el-table-column>
         <el-table-column label="角色" prop="role_name"></el-table-column>
-        <el-table-column label="状态" prop="ms_state">
+        <el-table-column label="状态" prop="mg_state">
           <!-- 自定义插槽 -->
           <template slot-scope="scope">
-            <el-switch v-model="scope.row.ms_state"></el-switch>
+            <el-switch v-model="scope.row.mg_state" @change="changeState(scope.row)"></el-switch>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="180px">
@@ -54,12 +54,36 @@
         :total="total">
       </el-pagination>
     </el-card>
+
+    <!-- 添加用户的Dialog -->
+    <el-dialog title="添加用户" :visible.sync="addUserDialogVisible">
+      <el-form :model="addForm" :rules="addFormRules" ref="addFormRef" label-width="70px">
+        <el-form-item label="用户名" prop="name">
+          <el-input v-model="addForm.name"></el-input>
+        </el-form-item>
+        <el-form-item label="密码" prop="password">
+          <el-input v-model="addForm.password"></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="addForm.email"></el-input>
+        </el-form-item>
+        <el-form-item label="手机" prop="phone">
+          <el-input v-model="addForm.phone"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="addUserDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="addUserDialogVisible = false">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
   import {
-    getUsers
+    getUsers,
+    changeUserState,
+    searchUser
   } from '../../api/Api.js'
 
   export default {
@@ -73,6 +97,67 @@
           query: '',
           pagenum: 1,
           pagesize: 2
+        },
+        //控制添加用户对话框的显示和隐藏
+        addUserDialogVisible: false,
+        formLabelWidth: '70px',
+        //添加用户的表单数据
+        addForm: {
+          name: '',
+          password: '',
+          email: '',
+          phone: ''
+        },
+        //添加用户表单验证规则
+        addFormRules: {
+          name: [{
+              required: true,
+              message: '请输入用户名',
+              trigger: 'blur'
+            },
+            {
+              min: 3,
+              max: 10,
+              message: '长度在 3 到 10 个字符',
+              trigger: 'blur'
+            }
+          ],
+          password: [{
+              required: true,
+              message: '请输入密码',
+              trigger: 'blur'
+            },
+            {
+              min: 5,
+              max: 10,
+              message: '长度在 5 到 10 个字符',
+              trigger: 'blur'
+            }
+          ],
+          email: [{
+              required: true,
+              message: '请输入邮箱',
+              trigger: 'blur'
+            },
+            {
+              min: 3,
+              max: 10,
+              message: '长度在 3 到 10 个字符',
+              trigger: 'blur'
+            }
+          ],
+          phone: [{
+              required: true,
+              message: '请输入手机号',
+              trigger: 'blur'
+            },
+            {
+              min: 3,
+              max: 10,
+              message: '长度在 3 到 10 个字符',
+              trigger: 'blur'
+            }
+          ],
         }
       }
     },
@@ -91,6 +176,20 @@
       handleCurrentChange(newPage) {
         this.queryInfo.pagenum = newPage
         this.getUsers()
+      },
+      //更改用户状态
+      async changeState(userInfo) {
+        console.log(userInfo);
+        const data = await changeUserState(userInfo.id, userInfo.mg_state)
+        if (data.meta.status === 200) {
+          this.$message.success(data.meta.msg)
+        } else {
+          userInfo.mg_state = !userInfo.mg_state
+        }
+      },
+      //根据ID查询用户
+      searchUser() {
+        searchUser(this.queryInfo.query)
       }
 
     },
